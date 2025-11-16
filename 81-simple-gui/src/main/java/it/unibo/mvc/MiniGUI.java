@@ -1,14 +1,22 @@
 package it.unibo.mvc;
 
+import javax.swing.BoxLayout;
+// import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+// import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+// import java.awt.Label;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * This class is a simple application that writes a random number on a file.
@@ -35,15 +43,31 @@ public class MiniGUI {
         canvas.add(write, BorderLayout.CENTER);
         frame.setContentPane(canvas);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        final JPanel firstPanel = new JPanel();
+        firstPanel.setLayout(new BoxLayout(firstPanel, BoxLayout.X_AXIS));
+        firstPanel.add(write);
+        canvas.add(firstPanel, BorderLayout.CENTER);
+
+        final JLabel result = new JLabel("Result");
+        result.setHorizontalAlignment(SwingConstants.CENTER);
+        canvas.add(result, BorderLayout.NORTH);
         /*
          * Handlers
          */
         write.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                System.out.println(randomGenerator.nextInt());
+                final int i = randomGenerator.nextInt();
+                result.setText(String.valueOf(i));
+                canvas.revalidate();
+                canvas.repaint();
+                final Logger logger = Logger.getLogger(MiniGUI.class.getName());
+                logger.info(String.valueOf(i));
             }
         });
+
+        
+
     }
 
     private void display() {
