@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import it.unibo.deathnote.api.DeathNote;
 
@@ -16,9 +17,13 @@ public class DeathNoteImpl implements DeathNote{
     private long endTime = 0L;
     private String currantName = null;
 
+    public DeathNoteImpl(){
+
+    }
+
     @Override
     public String getRule(int ruleNumber) {
-        if (ruleNumber < 1 || ruleNumber < RULES.size()) {
+        if (ruleNumber < 1 || ruleNumber > RULES.size()) {
             throw new IllegalArgumentException("Index < 0 or to high");
         }
         return RULES.get(ruleNumber);
@@ -40,9 +45,9 @@ public class DeathNoteImpl implements DeathNote{
         this.endTime = System.currentTimeMillis();
         if (cause == null || deathnote == null || currantName == null) {
             throw new IllegalStateException("The cause or the deathnote are null");
-        } else if ((this.startTime - this.endTime) < MAX_TIME_CAUSE) {
+        } else if ((this.endTime - this.startTime) < MAX_TIME_CAUSE) {
             this.startTime = this.endTime;
-            deathnote.get(this.currantName).add(cause);
+            deathnote.get(this.currantName).addFirst(cause);
             return true;
         }
         return false;
@@ -53,8 +58,8 @@ public class DeathNoteImpl implements DeathNote{
         this.endTime = System.currentTimeMillis();
         if (details == null || deathnote == null || currantName == null) {
             throw new IllegalStateException("The details or the deathnote are null");
-        } else if ((this.startTime - this.endTime) < MAX_TIME_DETAILS ) {
-            deathnote.get(this.currantName).add(details);
+        } else if ((this.endTime - this.startTime) < MAX_TIME_DETAILS ) {
+            deathnote.get(this.currantName).addLast(details);
             return true;
         }
         return false;
@@ -65,9 +70,13 @@ public class DeathNoteImpl implements DeathNote{
     public String getDeathCause(String name) {
         for (String k : deathnote.keySet()) {
             if (k.equals(name)) {
-                int i = 0;
-                String cause = deathnote.get(k).get(i);
-                return cause == null ?  new String("") : cause;
+                String cause;
+                try {
+                    cause = deathnote.get(k).getFirst();
+                } catch (NoSuchElementException e) {
+                    return new String("heart attack");
+                }
+                return cause;
             }
         }
         throw new IllegalArgumentException(name + " is not written in this DeathNote");
@@ -77,9 +86,13 @@ public class DeathNoteImpl implements DeathNote{
     public String getDeathDetails(String name) {
         for (String k : deathnote.keySet()) {
             if (k.equals(name)) {
-                int i = 1;
-                String details = deathnote.get(k).get(i);
-                return details == null ?  new String("") : details;
+                String details;
+                try {
+                    details = deathnote.get(k).getFirst();
+                } catch (NoSuchElementException e) {
+                    return new String("");
+                }
+                return details;
             }
         }
         throw new IllegalArgumentException(name + " is not written in this DeathNote");
