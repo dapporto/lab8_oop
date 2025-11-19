@@ -1,8 +1,10 @@
 package it.unibo.deathnote;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Iterator;
 
@@ -12,7 +14,13 @@ import org.junit.jupiter.api.function.Executable;
 import it.unibo.deathnote.impl.DeathNoteImpl;
 
 class TestDeathNote {
-    private DeathNoteImpl deathnote = new DeathNoteImpl();
+    private static final int BIG_INDEX = 30;
+    private static final int TEST_TIME_DETAILS = 6100;
+    private static final String PERSON1 = "Mario";
+    private static final String PERSON2 = "Angelo";
+    private static final String CAUSE1 = "kart accident";
+    private static final String CAUSE2 = "the person was in a supermarket";
+    private final DeathNoteImpl deathnote = new DeathNoteImpl();
 
     /**
      * Rule number 0 and negative rules do not exist in the DeathNote rules.
@@ -25,13 +33,13 @@ class TestDeathNote {
             public void execute() throws Throwable {
                 deathnote.getRule(0);
             }
-        }, "Index < 0 or to high");
+        });
         assertThrows(IllegalArgumentException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                deathnote.getRule(30);
+                deathnote.getRule(BIG_INDEX);
             }
-        }, "Index < 0 or to high");
+        });
     }
 
     /**
@@ -39,11 +47,10 @@ class TestDeathNote {
      */
     @Test
     void testRules() {
-        Iterator<String> it = DeathNoteImpl.RULES.iterator();
-        String currentRule;
+        final Iterator<String> it = DeathNoteImpl.RULES.iterator();
         while (it.hasNext()) {
-            currentRule = it.next();
-            if (currentRule == null || currentRule == new String("")) {
+            final String currentRule = it.next();
+            if (currentRule == null || "".equals(currentRule)) {
                 throw new IllegalArgumentException("One rule is null or blank");
             }
         }
@@ -54,11 +61,11 @@ class TestDeathNote {
      */
     @Test
     void testWriteName() {
-        assertEquals(false, deathnote.isNameWritten("Mario"));
-        deathnote.writeName("Mario");
-        assertEquals(true, deathnote.isNameWritten("Mario"));
-        assertEquals(false, deathnote.isNameWritten("Antonio"));
-        assertEquals(false, deathnote.isNameWritten(""));    
+        assertFalse(deathnote.isNameWritten(PERSON1));
+        deathnote.writeName(PERSON1);
+        assertTrue(deathnote.isNameWritten(PERSON1));
+        assertFalse(deathnote.isNameWritten(PERSON2));
+        assertFalse(deathnote.isNameWritten(""));
     }
 
     /**
@@ -73,18 +80,18 @@ class TestDeathNote {
                 deathnote.writeDeathCause("knife in the stomach");
             } 
         }, "The cause or the deathnote are null");
-        deathnote.writeName("Angelo");
-        assertEquals("heart attack", deathnote.getDeathCause("Angelo"));
-        deathnote.writeName("Antonella");
-        assertEquals(true, deathnote.writeDeathCause("karting accident"));
-        assertEquals("karting accident", deathnote.getDeathCause("Antonella"));
+        deathnote.writeName(PERSON2);
+        assertEquals("heart attack", deathnote.getDeathCause(PERSON2));
+        deathnote.writeName(PERSON1);
+        assertTrue(deathnote.writeDeathCause(CAUSE1));
+        assertEquals(CAUSE1, deathnote.getDeathCause(PERSON1));
         try {
          Thread.sleep(100);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         deathnote.writeDeathCause("murder");
-        assertEquals("karting accident", deathnote.getDeathCause("Antonella"));
+        assertEquals(CAUSE1, deathnote.getDeathCause(PERSON1));
     }
 
     @Test
@@ -92,19 +99,19 @@ class TestDeathNote {
         assertThrows(IllegalStateException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                deathnote.writeDetails("the person was in a supermarket");
+                deathnote.writeDetails(CAUSE2);
             }
         });
-        deathnote.writeName("Davide");
-        assertEquals("", deathnote.getDeathDetails("Davide"));
-        assertEquals(true, deathnote.writeDetails("ran for too long"));
-        deathnote.writeName("Luca");
+        deathnote.writeName(PERSON1);
+        assertEquals("", deathnote.getDeathDetails(PERSON1));
+        assertTrue(deathnote.writeDetails("ran for too long"));
+        deathnote.writeName(PERSON2);
         try {
-         Thread.sleep(6100);
-        } catch (InterruptedException e) {
+         Thread.sleep(TEST_TIME_DETAILS);
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        assertEquals(false, deathnote.writeDetails("he was in a supermarket"));
+        assertFalse(deathnote.writeDetails(CAUSE2));
     }
 }
 

@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 
@@ -28,7 +30,7 @@ public final class DrawNumberSwingView implements DrawNumberView {
     private static final String RESET = "Reset";
     private static final String GO = "Go";
     private static final String NEW_GAME = ": a new game starts!";
-
+    @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     private DrawNumberController controller;
     private final JFrame frame = new JFrame(FRAME_NAME);
 
@@ -90,6 +92,7 @@ public final class DrawNumberSwingView implements DrawNumberView {
         return showConfirmDialog(frame, question, name, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     @Override
     public void setController(final DrawNumberController observer) {
         this.controller = observer;
@@ -100,7 +103,6 @@ public final class DrawNumberSwingView implements DrawNumberView {
         switch (res) {
             case YOURS_HIGH, YOURS_LOW -> {
                 plainMessage(res.getDescription());
-                return;
             }
             case YOU_WON -> plainMessage(res.getDescription() + NEW_GAME);
             case YOU_LOST -> showMessageDialog(
@@ -109,7 +111,6 @@ public final class DrawNumberSwingView implements DrawNumberView {
                 JOptionPane.WARNING_MESSAGE
             );
         }
-        controller.resetGame();
     }
 
     private void plainMessage(final String msg) {
